@@ -15,6 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
+const db_1 = require("./db");
+const schema_1 = require("./schema");
+const drizzle_orm_1 = require("drizzle-orm");
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
@@ -24,16 +27,13 @@ const io = new socket_io_1.Server(server, {
     },
 });
 const PORT = 3000;
-// TODO: Fetch card from database
 function fetchCardFromDatabase() {
     return __awaiter(this, void 0, void 0, function* () {
-        // Replace this with actual database interaction
-        return {
-            id: '123',
-            mainWord: "Hello",
-            wrongWords: "Hi, Greetings, Bye, Goodbye, Wave",
-            approved: true
-        };
+        // pick a random card
+        const numberOfCards = yield db_1.db.$count(schema_1.cards);
+        const randomId = Math.floor(Math.random() * numberOfCards) + 1;
+        const card = yield db_1.db.select().from(schema_1.cards).limit(1).where((0, drizzle_orm_1.sql) `id = ${randomId}`);
+        return card[0];
     });
 }
 // End turn

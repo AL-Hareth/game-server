@@ -1,12 +1,16 @@
 import express, { Request, Response } from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
+import { db } from './db';
+import { cards } from './schema';
+import { sql } from 'drizzle-orm';
 
 interface Card {
-    id: string;
+    id: number;
     mainWord: string;
     wrongWords: string; // comma separated list
     approved: boolean;
+    category: string;
 }
 
 interface GameState {
@@ -41,15 +45,14 @@ const io = new Server(server, {
 
 const PORT = 3000;
 
-// TODO: Fetch card from database
 async function fetchCardFromDatabase(): Promise<Card> {
-    // Replace this with actual database interaction
-    return {
-        id: '123',
-        mainWord: "Hello",
-        wrongWords: "Hi, Greetings, Bye, Goodbye, Wave",
-        approved: true
-    };
+    // pick a random card
+    const numberOfCards = await db.$count(cards);
+    const randomId = Math.floor(Math.random() * numberOfCards) + 1;
+    console.log(randomId);
+    const card = await db.select().from(cards).limit(1).where(sql`id = ${randomId}`);
+
+    return card[0];
 }
 
 // End turn

@@ -1,0 +1,1 @@
+ALTER TABLE "cards" ADD COLUMN "category" varchar(255) NOT NULL;
