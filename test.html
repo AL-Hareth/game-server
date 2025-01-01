@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Client</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+
+<body>
+    <input placeholder="Player Name" type="text" id="playerName" />
+    <input placeholder="Room ID" type="text" id="roomId" />
+    <button id="btn">add player</button>
+    <button id="startGame">Start Game</button>
+    <button id="skip">Skip</button>
+    <button id="failBtn">Fail</button>
+    <button id="successBtn">Success</button>
+    <script>
+        const socket = io("http://localhost:3000");
+
+        // dom elements
+        const playerName = document.querySelector("#playerName");
+        const roomId = document.querySelector("#roomId");
+        const btn = document.querySelector("#btn");
+        const startGamebtn = document.querySelector("#startGame");
+        const skip = document.querySelector("#skip");
+        const failBtn = document.querySelector("#failBtn");
+        const successBtn = document.querySelector("#successBtn");
+
+        function addPlayer(name, id) {
+            socket.emit("join-room", {roomId: id, playerName: name});
+        }
+
+        function startGame(id) {
+            socket.emit("start-game", {roomId: id});
+        }
+
+        function skipCard(id) {
+            socket.emit("action", {roomId: id, action: "skip"});
+        }
+
+        function success(id) {
+            socket.emit("action", {roomId: id, action: "success"});
+        }
+
+        function fail(id) {
+            socket.emit("action", {roomId: id, action: "fail"});
+        }
+
+        btn.addEventListener("click", () => {
+            addPlayer(playerName.value, roomId.value);
+        });
+
+        startGamebtn.addEventListener("click", () => {
+            startGame(roomId.value);
+        });
+
+        skip.addEventListener("click", () => {
+            skipCard(roomId.value);
+        });
+
+        successBtn.addEventListener("click", () => {
+            success(roomId.value);
+        });
+
+        failBtn.addEventListener("click", () => {
+            fail(roomId.value);
+        });
+
+        socket.on("connect", () => {
+            console.log("Connected to server");
+        });
+
+        socket.on("player-joined", (data) => {
+            console.log("Player joined:", data);
+        });
+
+        socket.on("card-for-player", (data) => {
+            console.log("Send for player:", data);
+        });
+
+        socket.on("card-for-opponents", (data) => {
+            console.log("Send for opponents:", data);
+        });
+
+        socket.on("message", (data) => {
+            console.log("Message from server:", data);
+        });
+
+        socket.on("disconnect", () => {
+            console.log("Disconnected from server");
+        });
+    </script>
+</body>
+
+</html>
